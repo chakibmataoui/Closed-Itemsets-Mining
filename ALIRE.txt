@@ -1,0 +1,9 @@
+Pour compiler le projet sous linux la commande :
+$ make
+Pour lancer le projet l'une des commandes suivants de la forme
+./exe [FICHIER CSV] [MINSUP en % ex 20 30 40] [NBR DE THREAD < NBR DE LIGNE CSV]
+./exe small.csv 20 15
+./exe test.csv 20 10
+./exe essai.csv 20 31
+
+Nous avons developper sur Linux et essayé de compiler sous windows mais cela n'a pas fonctioné donc nous vous avons donner la version linux

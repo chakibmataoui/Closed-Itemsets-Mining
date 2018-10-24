@@ -5,11 +5,14 @@ context::context(char* context_file){
   fstream filter(file_name);
   vector<string> grid;
   string line;
+  //Lire les lignes du fichier
   while(getline(filter,line)){
     grid.push_back(line);
   }
   size_i = grid.size();
+  //Déduire combien d'élements existent 
   size_j = grid[0].length() - ((grid[0].length()-1)/2);
+  //Extraction des elements
   for (std::size_t row = 0; row < size_i; ++row)
     {
       string res = grid[row];
@@ -86,6 +89,7 @@ vector<vector<int>> context::close(double minsup){
 	if(ajout)
 	  ferme.push_back(col);
       }
+      //Trier le résultat par ordre alphabétique
       sort(ferme.begin(),ferme.end());
       if(find(fermeture.begin(),fermeture.end(),ferme) == fermeture.end())
 	fermeture.push_back(ferme);
@@ -123,28 +127,14 @@ vector<vector<int>> context::close(double minsup){
 	g.erase(find(g.begin(),g.end(),ffc1[j]));
       }
     }
+    //On enleve le générateur qu'on a utiliser 
     generateurs.erase(generateurs.begin(),generateurs.begin()+fc_size);
   }while(generer);
   
   return fermeture;
 }
 
-double context::support(vector<int> cols){
-  int nbr = 0;
-  for(int i = 0; i < size_i; ++i){
-    bool is_true = true;
-    for(int j = 0; j < cols.size(); ++j){
-      if(context_matrix[i][cols[j]] == false){
-	is_true = false;
-	break;
-      }
-    }
-    if(is_true)
-      nbr++;
-  }
-  //cout << nbr << "/" << size_i << endl;
-  return (double)nbr/size_i;
-}
+
 
 context::context(context &mat,int deb,int fin){
   size_i = fin - deb ;
@@ -175,4 +165,75 @@ vector<vector<int>> context::unif(vector<vector<int>> fermeture1,vector<vector<i
     }
   }
   return union_f;
+}
+
+void context::generation_regles_assoc(vector<vector<int>> fermeture){
+  vector<int> g,conf;
+  for(int i = 0; i < fermeture.size(); ++i){
+    for(int j = 0; j < fermeture[i].size(); ++j){
+      g.push_back(fermeture[i][j]);
+      if(g.size() == fermeture[i].size())continue;
+      // On affiche a l'endroit
+      for(int z = 0; z < g.size(); ++z){
+	cout <<  (char)(g[z]+65);
+      }
+      cout << " --> " ;
+      for(int z = 0; z < fermeture[i].size(); ++z){
+	if(find(g.begin(),g.end(),fermeture[i][z]) != g.end())
+	  continue;
+	conf.push_back(fermeture[i][z]);
+	cout <<  (char)(fermeture[i][z]+65) ;
+      }
+      cout << "\t conf = " << support_simple(fermeture[i])<< "/" <<  support_simple(g) << endl;
+      //et a l'envers
+      for(int z = 0; z < fermeture[i].size(); ++z){
+	if(find(g.begin(),g.end(),fermeture[i][z]) != g.end())
+	  continue;
+	cout <<  (char)(fermeture[i][z]+65) ;
+      }
+      cout << " --> " ;
+      for(int z = 0; z < g.size(); ++z){
+	cout <<  (char)(g[z]+65);
+      }
+      cout << "\t conf = " << (double)support_simple(fermeture[i]) << "/" << support_simple(conf) << endl;
+      g.pop_back();
+    }
+    g.clear();
+  }
+}
+
+int context::support_simple(vector<int> cols){
+  int nbr = 0;
+  //On prend chaque element ou ils sont tous TRUE
+  for(int i = 0; i < size_i; ++i){
+    bool is_true = true;
+    for(int j = 0; j < cols.size(); ++j){
+      if(context_matrix[i][cols[j]] == false){
+	is_true = false;
+	break;
+      }
+    }
+    if(is_true)
+      nbr++;
+  }
+  //cout << nbr << "/" << size_i << endl;
+  return nbr;
+}
+
+double context::support(vector<int> cols){
+  int nbr = 0;
+  //On prend chaque element ou ils sont tous TRUE
+  for(int i = 0; i < size_i; ++i){
+    bool is_true = true;
+    for(int j = 0; j < cols.size(); ++j){
+      if(context_matrix[i][cols[j]] == false){
+	is_true = false;
+	break;
+      }
+    }
+    if(is_true)
+      nbr++;
+  }
+  //cout << nbr << "/" << size_i << endl;
+  return (double)nbr/size_i;
 }
